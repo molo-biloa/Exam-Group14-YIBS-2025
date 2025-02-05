@@ -1,4 +1,5 @@
 from flask import Flask, render_template, request, redirect, url_for
+from werkzeug.utils import secure_filename
 import numpy as np
 from PIL import Image
 import os
@@ -56,14 +57,14 @@ def upload_file():
                 
                 # Process and predict
                 processed_image = preprocess_image(filepath)
-                prediction = model.predict(processed_image)
-                predicted_class = np.argmax(prediction)
-                confidence = np.max(prediction) * 100
-                
+                with torch.no_grad():
+                    outputs = model(processed_image)
+                    confidence, predicted = torch.max(torch.softmax(outputs, dim=1), 1)
+                    
                 predictions.append({
                     'filename': filename,
-                    'label': class_names[predicted_class],
-                    'confidence': f"{confidence:.2f}%"
+                    'label': class_names[predicted.item()],
+                    'confidence': f"{confidence.item()*100:.2f}%"
                 })
 
         return render_template('index.html', predictions=predictions)

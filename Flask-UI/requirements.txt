@@ -3,3 +3,4 @@ gunicorn==21.2.0
 torch==2.2.1
 torchvision==0.17.1
 pillow==10.2.0
+numpy<2
