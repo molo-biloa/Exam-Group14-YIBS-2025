@@ -1,0 +1,6 @@
+# Install required libraries
+install 
+torch 
+torchvision 
+matplotlib 
+kagglehub
