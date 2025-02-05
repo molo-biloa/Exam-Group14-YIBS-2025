@@ -66,6 +66,9 @@ optimizer = optim.Adam(model.parameters())
 
 # Training loop with detailed logging
 epochs = 10
+train_losses = []  # Store training losses
+val_losses = []    # Store validation losses
+
 for epoch in range(epochs):
     model.train()
     running_loss = 0.0
@@ -102,20 +105,23 @@ for epoch in range(epochs):
                   f"Loss: {current_loss:.4f} | "
                   f"Accuracy: {current_acc:.2f}%")
 
-    # Epoch statistics
+    # Store training loss
     epoch_loss = running_loss / total
+    train_losses.append(epoch_loss)
+
+    # Epoch statistics
     epoch_acc = 100 * correct / total
     print(f"\nEpoch {epoch+1} Summary:")
     print(f"  Training Loss: {epoch_loss:.4f} | "
           f"Training Accuracy: {epoch_acc:.2f}%")
 
-    # Validation phase (optional)
+    # Validation phase
     model.eval()
     val_loss = 0.0
     val_correct = 0
     val_total = 0
     with torch.no_grad():
-        for images, labels in test_loader:  # Using test set for demonstration
+        for images, labels in test_loader:
             images, labels = images.to(device), labels.to(device)
             outputs = model(images)
             loss = criterion(outputs, labels)
@@ -125,11 +131,26 @@ for epoch in range(epochs):
             val_correct += (predicted == labels).sum().item()
             val_total += labels.size(0)
 
+    # Store validation loss
     val_loss = val_loss / val_total
+    val_losses.append(val_loss)
+
     val_acc = 100 * val_correct / val_total
     print(f"  Validation Loss: {val_loss:.4f} | "
           f"Validation Accuracy: {val_acc:.2f}%")
     print("-" * 50)
+
+# Generate loss chart after training
+plt.figure(figsize=(10, 6))
+plt.plot(range(1, epochs+1), train_losses, label='Training Loss')
+plt.plot(range(1, epochs+1), val_losses, label='Validation Loss')
+plt.title('Training and Validation Loss Curve')
+plt.xlabel('Epochs')
+plt.ylabel('Loss')
+plt.xticks(range(1, epochs+1))
+plt.legend()
+plt.grid(True)
+plt.show()
 
 # Final evaluation
 model.eval()
@@ -148,5 +169,5 @@ print("-" * 50)
 print(f"Test Accuracy: {100 * final_correct / final_total:.2f}%")
 
 # Save model
-torch.save(model.state_dict(), 'fashion_mnist_cnn.pth')
+torch.save(model.state_dict(), 'fashion_mnist_cnn_v2.pth')
 print("\nModel saved successfully!")
