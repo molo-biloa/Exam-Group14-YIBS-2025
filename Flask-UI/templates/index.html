@@ -367,7 +367,7 @@ document.getElementById('uploadForm').addEventListener('submit', async (e) => {
         }
 
     } catch (error) {
-        alert(error.message || 'Failed to process images');
+        console.log(error.message || 'Failed to process images');
         console.error('Error:', error);
     } finally {
         hideLoader();
