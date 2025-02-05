@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for, jsonify
 from werkzeug.utils import secure_filename
 import numpy as np
 from PIL import Image
@@ -83,8 +83,9 @@ def preprocess_image(image_path):
 def upload_file():
     if request.method == 'POST':
         files = request.files.getlist('file[]')
-        predictions = []
-        
+    predictions = []
+    
+    try:
         for file in files:
             if file and file.filename != '':
                 # Save the uploaded file
@@ -99,20 +100,18 @@ def upload_file():
                     probabilities = torch.softmax(outputs, dim=1)
                     confidence, predicted = torch.max(probabilities, 1)
                     
-                 # Update the predictions dictionary to include descriptions
-                predictions.append({
-                    'filename': filename,
-                    'label': class_names[predicted.item()],
-                    'confidence': f"{confidence.item()*100:.2f}%",
-                    'description': class_descriptions[class_names[predicted.item()]]  # Add description
-                })
+                    # Update the predictions dictionary to include descriptions
+                    predictions.append({
+                        'filename': filename,
+                        'label': class_names[predicted.item()],
+                        'confidence': f"{confidence.item()*100:.2f}%",
+                        'description': class_descriptions[class_names[predicted.item()]]  # Add description
+                    })
 
-        # Return HTML fragment for AJAX requests
-        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-            return render_template('results_partial.html', predictions=predictions)
-        
-        return render_template('index.html', predictions=predictions)
-    
+                return render_template('index.html', predictions=predictions)       
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
     return render_template('index.html', predictions=None)
 
 if __name__ == '__main__':
