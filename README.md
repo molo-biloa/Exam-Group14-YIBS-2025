@@ -26,7 +26,7 @@ After training completes:
 2. Right-click `fashion_mnist_cnn_v2.pth`
 3. Select "Download"
 
-![Colab Training Demo](https://via.placeholder.com/600x400.png?text=Colab+Training+Screenshot)
+![Colab Training Demo](https://github.com/molo-biloa/Exam-Group14-YIBS-2025/blob/main/model_training.png)
 
 ### **Alternative Manual Setup**  
 If you prefer to copy-paste code:
@@ -36,7 +36,8 @@ If you prefer to copy-paste code:
 %cd Exam-Group14-YIBS-2025/model
 
 # Install dependencies
-!pip install torch torchvision matplotlib kagglehub
+!pip install torch torchvision matplotlib kagglehub numpy
 
 # Run training script
-!python model_training.py 
+- Create a new code cell
+- Copy the entire content of the `model_training.py` \file  and paste then click run (The play button on the left)
