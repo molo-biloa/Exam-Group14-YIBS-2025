@@ -8,28 +8,28 @@ import torch
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = 'static/uploads'
 
-# Load PyTorch model
 class CNN(torch.nn.Module):
     def __init__(self):
         super(CNN, self).__init__()
-        self.conv1 = torch.nn.Conv2d(1, 32, 3)
-        self.pool = torch.nn.MaxPool2d(2, 2)
-        self.conv2 = torch.nn.Conv2d(32, 64, 3)
-        self.fc1 = torch.nn.Linear(64 * 5 * 5, 128)
-        self.dropout = torch.nn.Dropout(0.5)
-        self.fc2 = torch.nn.Linear(128, 10)
+        self.network = torch.nn.Sequential(
+            torch.nn.Conv2d(1, 32, kernel_size=3),
+            torch.nn.ReLU(),
+            torch.nn.MaxPool2d(2),
+            torch.nn.Conv2d(32, 64, kernel_size=3),
+            torch.nn.ReLU(),
+            torch.nn.MaxPool2d(2),
+            torch.nn.Flatten(),
+            torch.nn.Linear(64*5*5, 128),
+            torch.nn.ReLU(),
+            torch.nn.Dropout(0.5),
+            torch.nn.Linear(128, 10)
+        )
 
     def forward(self, x):
-        x = self.pool(torch.relu(self.conv1(x)))
-        x = self.pool(torch.relu(self.conv2(x)))
-        x = x.view(-1, 64 * 5 * 5)
-        x = torch.relu(self.fc1(x))
-        x = self.dropout(x)
-        x = self.fc2(x)
-        return x
+        return self.network(x)
 
 model = CNN()
-model.load_state_dict(torch.load('fashion_mnist_cnn.pth', map_location=torch.device('cpu')))
+model.load_state_dict(torch.load('fashion_mnist_cnn_v2.pth', map_location=torch.device('cpu')))
 model.eval()
 
 class_names = ['T-shirt/top', 'Trouser', 'Pullover', 'Dress', 'Coat',
