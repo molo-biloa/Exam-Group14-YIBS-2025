@@ -1,0 +1,19 @@
+{% if predictions %}
+<div class="results mt-4">
+    <h3 class="mb-3">Classification Results</h3>
+    <div class="row">
+        {% for prediction in predictions %}
+        <div class="col-md-4 mb-3">
+            <div class="result-card">
+                <img src="{{ url_for('static', filename='uploads/' + prediction.filename) }}" 
+                     class="img-fluid mb-2" alt="Uploaded image">
+                <div class="text-center">
+                    <h5 class="mb-1">{{ prediction.label }}</h5>
+                    <small class="text-muted">{{ prediction.confidence }} confidence</small>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}

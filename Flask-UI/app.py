@@ -74,8 +74,13 @@ def upload_file():
                     'confidence': f"{confidence.item()*100:.2f}%"
                 })
 
+        # Return HTML fragment for AJAX requests
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return render_template('results_partial.html', predictions=predictions)
+        
         return render_template('index.html', predictions=predictions)
     
     return render_template('index.html', predictions=None)
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
