@@ -210,11 +210,15 @@
         fileInput.addEventListener('change', (e) => {
             handleFiles(e.target.files);
         });
+        
 
         // Handle file processing
         function handleFiles(files) {
             previewContainer.innerHTML = '';
-            
+                if (files.length > 10) { // Example limit
+            alert('Maximum 10 files allowed');
+            return;
+            }
             for (const file of files) {
                 if (file.type.startsWith('image/')) {
                     const reader = new FileReader();
@@ -231,34 +235,37 @@
             }
         }
 
-        // Form Submission Handler
+                // Modified form submission handler
         document.getElementById('uploadForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const formData = new FormData();
             
-            // Add all files to FormData
+            // Add all files to FormData (existing code)
             for (const file of fileInput.files) {
                 formData.append('file[]', file);
             }
 
-            // Show loading state
+            // Show loading state (existing code)
             submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Processing...';
             submitBtn.disabled = true;
 
             try {
                 const response = await fetch('/predict', {
                     method: 'POST',
-                    body: formData
+                    body: formData,
+                    redirect: 'manual' // Add this
                 });
 
-                if (!response.ok) {
-                    throw new Error(await response.text());
+                if (response.status === 200) {
+                    // Successful submission - let Flask handle the redirect
+                    window.location.href = '/predict';
+                } else {
+                    const error = await response.text();
+                    throw new Error(error || 'Failed to process images');
                 }
-
-                window.location.reload(); // Refresh to show results
-
             } catch (error) {
-                alert(error.message || 'Failed to process images');
+                alert(error.message);
+                console.error('Error:', error);
             } finally {
                 submitBtn.innerHTML = 'Analyze Images <i class="fas fa-magic ml-2"></i>';
                 submitBtn.disabled = false;

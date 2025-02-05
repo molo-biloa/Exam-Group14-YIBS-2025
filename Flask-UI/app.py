@@ -6,7 +6,11 @@ import os
 import torch
 
 app = Flask(__name__)
+# Add this right after setting app.config['UPLOAD_FOLDER']
 app.config['UPLOAD_FOLDER'] = 'static/uploads'
+
+# Create upload directory if it doesn't exist
+os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 
 class CNN(torch.nn.Module):
     def __init__(self):
@@ -49,10 +53,13 @@ def upload_file():
         predictions = []
         
         for file in files:
-            if file:
-                # Save file
+            if file and file.filename != '':
                 filename = secure_filename(file.filename)
-                filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+                # Create absolute path
+                filepath = os.path.join(
+                    os.path.abspath(app.config['UPLOAD_FOLDER']), 
+                    filename
+                )
                 file.save(filepath)
                 
                 # Process and predict
@@ -69,6 +76,6 @@ def upload_file():
 
         return render_template('index.html', predictions=predictions)
     
-    return render_template('index.html')
+    return render_template('index.html', predictions=None)
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
