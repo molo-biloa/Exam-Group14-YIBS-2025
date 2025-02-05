@@ -90,6 +90,32 @@
             box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
     </style>
+    <style>
+        .credits-footer {
+            margin-top: 3rem;
+            padding: 1rem;
+            background: rgba(19, 194, 92, 0.1);
+            border-radius: 10px;
+            text-align: center;
+        }
+        
+        .credits-footer h5 {
+            color: var(--secondary-color);
+            margin-bottom: 0.5rem;
+        }
+        
+        .credits-footer p {
+            margin: 0.2rem 0;
+            font-size: 0.9em;
+        }
+        
+        .documentation-links {
+            margin-top: 1rem;
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+        }
+    </style>
 </head>
 <body>
     <div class="container upload-container">
@@ -137,6 +163,24 @@
                 </div>
             </div>
             {% endif %}
+        </div>
+    </div>
+    <div class="credits-footer">
+        <h5>AI/SWE Exam-YIBS-2025 - Group 14</h5>
+        <p>Developed by:</p>
+        <p>SUNYIN ELISBROWN SIGALA</p>
+        <p>NOUBISSIE TCHEUSIDJI ELVIS KABREL</p>
+        <p>NJABE NGITE BESTLEY</p>
+        <p>MOLO BILOA TEDDY BRYAN</p>
+        
+        <div class="documentation-links">
+            <a href="https://github.com/molo-biloa/Exam-Group14-YIBS-2025" target="_blank" class="btn btn-sm btn-outline-secondary">
+                <i class="fab fa-github"></i> GitHub Repository
+            </a>
+            <a href="https://colab.research.google.com/drive/1fHc_HXm5ioiFZCiEKFspcg690nPHl8Mw#scrollTo=tp-PTG-7z_jP" 
+               target="_blank" class="btn btn-sm btn-outline-danger">
+                <i class="fab fa-google"></i> Google Colab
+            </a>
         </div>
     </div>
 
