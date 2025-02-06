@@ -261,6 +261,23 @@
             </a>
         </div>
     </div>
+     <!-- Error Modal -->
+     <div class="modal fade" id="errorModal" tabindex="-1" aria-labelledby="errorModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="errorModalLabel">Error</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="errorModalBody">
+                    <!-- Error message will be inserted here -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <div class="loader-overlay" id="loaderOverlay">
         <div class="loader-text">
@@ -344,7 +361,7 @@
                 window.location.reload(); // Refresh to show results
 
             } catch (error) {
-                alert(error.message || 'Failed to process images');
+                showErrorModal(error.message || 'Failed to process images');
             } finally {
                 hideLoader();
                 submitBtn.disabled = false;
@@ -361,7 +378,15 @@
             document.getElementById('loaderOverlay').classList.remove('active');
             document.body.style.overflow = 'auto';
         }
+
+        // Function to show error modal with a message
+        function showErrorModal(message) {
+            document.getElementById('errorModalBody').innerText = message;
+            var errorModal = new bootstrap.Modal(document.getElementById('errorModal'));
+            errorModal.show();
+        }
     </script>
+
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>

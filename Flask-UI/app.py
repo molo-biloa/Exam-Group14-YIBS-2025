@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, jsonify
 from werkzeug.utils import secure_filename
 import numpy as np
 from PIL import Image
@@ -82,35 +82,39 @@ def preprocess_image(image_path):
 @app.route('/predict', methods=['GET', 'POST'])
 def upload_file():
     if request.method == 'POST':
-        files = request.files.getlist('file[]')
-        predictions = []
-        
-        for file in files:
-            if file and file.filename != '':
-                # Save the uploaded file
-                filename = secure_filename(file.filename)
-                filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-                file.save(filepath)
-                
-                # Preprocess and predict
-                processed_image = preprocess_image(filepath)
-                with torch.no_grad():
-                    outputs = model(processed_image)
-                    probabilities = torch.softmax(outputs, dim=1)
-                    confidence, predicted = torch.max(probabilities, 1)
-                    
-                    # Update the predictions dictionary to include descriptions
-                    predictions.append({
-                        'filename': filename,
-                        'label': class_names[predicted.item()],
-                        'confidence': f"{confidence.item()*100:.2f}%",
-                        'description': class_descriptions[class_names[predicted.item()]]  # Add description
-                    })
+        try:
+            files = request.files.getlist('file[]')
+            if not files:
+                raise ValueError("No files uploaded")
 
-        # Return HTML fragment for AJAX requests
-        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-            return render_template('index.html', predictions=predictions)       
-    
+            predictions = []
+            
+            for file in files:
+                if file and file.filename != '':
+                    # Save the uploaded file
+                    filename = secure_filename(file.filename)
+                    filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+                    file.save(filepath)
+                    
+                    # Preprocess and predict
+                    processed_image = preprocess_image(filepath)
+                    with torch.no_grad():
+                        outputs = model(processed_image)
+                        probabilities = torch.softmax(outputs, dim=1)
+                        confidence, predicted = torch.max(probabilities, 1)
+                        
+                        predictions.append({
+                            'filename': filename,
+                            'label': class_names[predicted.item()],
+                            'confidence': f"{confidence.item()*100:.2f}%",
+                            'description': class_descriptions[class_names[predicted.item()]]
+                        })
+
+            return render_template('index.html', predictions=predictions)
+        
+        except Exception as e:
+            return jsonify({'error': str(e)}), 500
+
     return render_template('index.html', predictions=None)
 
 if __name__ == '__main__':
