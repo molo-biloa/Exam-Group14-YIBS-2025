@@ -261,23 +261,6 @@
             </a>
         </div>
     </div>
-<!-- Error Modal -->
-<div class="modal fade" id="errorModal" tabindex="-1" aria-labelledby="errorModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="errorModalLabel">Error</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body" id="errorModalBody">
-                <!-- Error message will be inserted here -->
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-            </div>
-        </div>
-    </div>
-</div>
 
     <div class="loader-overlay" id="loaderOverlay">
         <div class="loader-text">
@@ -333,12 +316,7 @@
                 }
             }
         }
-            // Function to show error modal with a message
-            function showErrorModal(message) {
-            document.getElementById('errorModalBody').innerText = message;
-            var errorModal = new bootstrap.Modal(document.getElementById('errorModal'));
-            errorModal.show();
-             }
+
         // Form Submission Handler
         document.getElementById('uploadForm').addEventListener('submit', async (e) => {
             e.preventDefault();
