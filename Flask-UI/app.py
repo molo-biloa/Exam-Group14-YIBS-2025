@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, jsonify
+from flask import Flask, render_template, request, redirect, url_for
 from werkzeug.utils import secure_filename
 import numpy as np
 from PIL import Image
@@ -83,9 +83,8 @@ def preprocess_image(image_path):
 def upload_file():
     if request.method == 'POST':
         files = request.files.getlist('file[]')
-    predictions = []
-    
-    try:
+        predictions = []
+        
         for file in files:
             if file and file.filename != '':
                 # Save the uploaded file
@@ -108,10 +107,10 @@ def upload_file():
                         'description': class_descriptions[class_names[predicted.item()]]  # Add description
                     })
 
-                return render_template('index.html', predictions=predictions)       
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
-
+        # Return HTML fragment for AJAX requests
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return render_template('index.html', predictions=predictions)       
+    
     return render_template('index.html', predictions=None)
 
 if __name__ == '__main__':
