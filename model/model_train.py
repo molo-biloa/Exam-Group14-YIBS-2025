@@ -2,17 +2,29 @@ import numpy as np
 import matplotlib.pyplot as plt
 import torch
 from torch import nn, optim
-from torch.utils.data import DataLoader, TensorDataset
+from torch.utils.data import DataLoader
 from torchvision import datasets, transforms
 import kagglehub
 
 # Download Fashion-MNIST dataset
 path = kagglehub.dataset_download("zalando-research/fashionmnist")
 
+# Enhanced data transformations with normalization and augmentation
+train_transform = transforms.Compose([
+    transforms.RandomHorizontalFlip(),  # Data augmentation
+    transforms.RandomRotation(10),      # Data augmentation
+    transforms.ToTensor(),
+    transforms.Normalize((0.5,), (0.5,))  # Normalize to [-1, 1]
+])
+
+test_transform = transforms.Compose([
+    transforms.ToTensor(),
+    transforms.Normalize((0.5,), (0.5,))  # Normalize to [-1, 1]
+])
+
 # Load dataset using PyTorch
-transform = transforms.Compose([transforms.ToTensor()])
-train_data = datasets.FashionMNIST(root='./data', train=True, download=True, transform=transform)
-test_data = datasets.FashionMNIST(root='./data', train=False, download=True, transform=transform)
+train_data = datasets.FashionMNIST(root='./data', train=True, download=True, transform=train_transform)
+test_data = datasets.FashionMNIST(root='./data', train=False, download=True, transform=test_transform)
 
 class_names = ['T-shirt/top', 'Trouser', 'Pullover', 'Dress', 'Coat',
                'Sandal', 'Shirt', 'Sneaker', 'Bag', 'Ankle boot']
@@ -34,25 +46,38 @@ for i in range(9):
 plt.show()
 
 # Create DataLoaders
-train_loader = DataLoader(train_data, batch_size=64, shuffle=True)
-test_loader = DataLoader(test_data, batch_size=64)
+train_loader = DataLoader(train_data, batch_size=128, shuffle=True, num_workers=4)  # Increased batch size
+test_loader = DataLoader(test_data, batch_size=128, num_workers=4)  # Increased batch size
 
-# Define CNN model
-class CNN(nn.Module):
+# Enhanced CNN model with BatchNorm and deeper layers
+class EnhancedCNN(nn.Module):
     def __init__(self):
         super().__init__()
         self.network = nn.Sequential(
-            nn.Conv2d(1, 32, kernel_size=3),    # (32, 26, 26)
+            # Conv Block 1
+            nn.Conv2d(1, 32, kernel_size=3, padding=1),  # Keep spatial dimensions
+            nn.BatchNorm2d(32),  # Batch normalization
             nn.ReLU(),
-            nn.MaxPool2d(2),                   # (32, 13, 13)
-            nn.Conv2d(32, 64, kernel_size=3),  # (64, 11, 11)
+            nn.MaxPool2d(2),  # Downsample to 14x14
+
+            # Conv Block 2
+            nn.Conv2d(32, 64, kernel_size=3, padding=1),
+            nn.BatchNorm2d(64),  # Batch normalization
             nn.ReLU(),
-            nn.MaxPool2d(2),                   # (64, 5, 5)
+            nn.MaxPool2d(2),  # Downsample to 7x7
+
+            # Conv Block 3
+            nn.Conv2d(64, 128, kernel_size=3, padding=1),
+            nn.BatchNorm2d(128),  # Batch normalization
+            nn.ReLU(),
+            nn.MaxPool2d(2),  # Downsample to 3x3
+
+            # Classifier
             nn.Flatten(),
-            nn.Linear(64*5*5, 128),
+            nn.Linear(128 * 3 * 3, 256),  # Increased hidden units
             nn.ReLU(),
-            nn.Dropout(0.5),
-            nn.Linear(128, 10)
+            nn.Dropout(0.5),  # Dropout for regularization
+            nn.Linear(256, 10)
         )
 
     def forward(self, x):
@@ -60,12 +85,13 @@ class CNN(nn.Module):
 
 # Initialize model, loss function, and optimizer
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-model = CNN().to(device)
+model = EnhancedCNN().to(device)
 criterion = nn.CrossEntropyLoss()
-optimizer = optim.Adam(model.parameters())
+optimizer = optim.Adam(model.parameters(), lr=0.001, weight_decay=1e-4)  # Added weight decay
+scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', patience=2)  # Learning rate scheduler
 
 # Training loop with detailed logging
-epochs = 10
+epochs = 15  # Increased epochs
 train_losses = []  # Store training losses
 val_losses = []    # Store validation losses
 
@@ -140,6 +166,9 @@ for epoch in range(epochs):
           f"Validation Accuracy: {val_acc:.2f}%")
     print("-" * 50)
 
+    # Learning rate scheduler step
+    scheduler.step(val_loss)
+
 # Generate loss chart after training
 plt.figure(figsize=(10, 6))
 plt.plot(range(1, epochs+1), train_losses, label='Training Loss')
@@ -169,5 +198,5 @@ print("-" * 50)
 print(f"Test Accuracy: {100 * final_correct / final_total:.2f}%")
 
 # Save model
-torch.save(model.state_dict(), 'fashion_mnist_cnn_v2.pth')
+torch.save(model.state_dict(), 'fashion_mnist_cnn_v3.pth')
 print("\nModel saved successfully!")

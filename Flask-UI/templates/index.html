@@ -261,8 +261,8 @@
             </a>
         </div>
     </div>
-     <!-- Error Modal -->
-     <div class="modal fade" id="errorModal" tabindex="-1" aria-labelledby="errorModalLabel" aria-hidden="true">
+    <!-- Error Modal -->
+    <div class="modal fade" id="errorModal" tabindex="-1" aria-labelledby="errorModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
@@ -337,13 +337,8 @@
         // Form Submission Handler
         document.getElementById('uploadForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const formData = new FormData();
+            const formData = new FormData(document.getElementById('uploadForm'));
             
-            // Add all files to FormData
-            for (const file of fileInput.files) {
-                formData.append('file[]', file);
-            }
-
             // Show loading state
             showLoader();
             submitBtn.disabled = true;
